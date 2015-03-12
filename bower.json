@@ -1,19 +1,27 @@
 {
-  "name": "amitava82/angular-multiselect",
+  "name": "angular-multiselect-dynamic",
   "version": "1.0.0",
+  "authors": [
+    "Ramakrishnan Srinivasan",
+    "Amitava Saha"
+  ],
   "main": "src/multiselect.js",
-  "description": "Native AngularJS multiselect directive",
+  "description": "Native AngularJS multiselect directive, thanks to amitava82, with some enhancements",
   "license": "MIT",
   "ignore": [
     ".jshintrc",
     "**/*.txt"
   ],
   "dependencies": {
-    "angular": ">=1.0.4"
+    "angular": "~1.2.28",
+    "lodash": "~2.4.1"
   },
   "keywords": [
     "angularjs",
     "multiselect",
-    "select"
-  ]
+    "select",
+    "directive",
+    "dropdown"
+  ],
+  "license": "MIT"
 }

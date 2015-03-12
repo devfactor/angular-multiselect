@@ -1,32 +1,49 @@
 // Source: https://github.com/amitava82/angular-multiselect
 angular.module('ui.multiselect', [])
 
-  //from bootstrap-ui typeahead parser
-  .factory('optionParser', ['$parse', function ($parse) {
+//from bootstrap-ui typeahead parser
+.factory('optionParser', ['$parse', function ($parse) {
 
-    //                      00000111000000000000022200000000000000003333333333333330000000000044000
-    var TYPEAHEAD_REGEXP = /^\s*(.*?)(?:\s+as\s+(.*?))?\s+for\s+(?:([\$\w][\$\w\d]*))\s+in\s+(.*)$/;
+  //                      00000111000000000000022200000000000000003333333333333330000000000044000
+  var TYPEAHEAD_REGEXP = /^\s*(.*?)(?:\s+as\s+(.*?))?\s+for\s+(?:([\$\w][\$\w\d]*))\s+in\s+(.*)$/;
 
-    return {
-      parse: function (input) {
+  return {
+    parse: function (input) {
 
-        var match = input.match(TYPEAHEAD_REGEXP), modelMapper, viewMapper, source;
-        if (!match) {
-          throw new Error(
-            "Expected typeahead specification in form of '_modelValue_ (as _label_)? for _item_ in _collection_'" +
-              " but got '" + input + "'.");
-        }
-
-        return {
-          itemName: match[3],
-          source: $parse(match[4]),
-          viewMapper: $parse(match[2] || match[1]),
-          modelMapper: $parse(match[1])
-        };
+      var match = input.match(TYPEAHEAD_REGEXP),
+        modelMapper, viewMapper, source;
+      if (!match) {
+        throw new Error(
+          "Expected typeahead specification in form of '_modelValue_ (as _label_)? for _item_ in _collection_'" +
+          " but got '" + input + "'.");
       }
-    };
+
+      return {
+        itemName: match[3],
+        source: $parse(match[4]),
+        viewMapper: $parse(match[2] || match[1]),
+        modelMapper: $parse(match[1])
+      };
+    }
+  };
   }])
 
+.filter('textFilter', function () {
+    return function (input) {
+      var inputElement = angular.element(document.querySelector('multiselect input'));
+      var filterText = inputElement.val();
+      if (filterText === "") {
+        return input;
+      }
+      out = [];
+      for (i = 0; i < input.length; i++) {
+        if (input[i]['label'].contains(filterText)) {
+          out.push(input[i]);
+        }
+      }
+      return out;
+    }
+  })
   .directive('multiselect', ['$parse', '$document', '$compile', '$interpolate', 'optionParser',
 
     function ($parse, $document, $compile, $interpolate, optionParser) {
@@ -40,26 +57,30 @@ angular.module('ui.multiselect', [])
             isMultiple = attrs.multiple ? true : false,
             required = false,
             scope = originalScope.$new(),
-            changeHandler = attrs.change || angular.noop;
+            changeHandler = attrs.change || angular.noop,
+            txtPattern;
 
           scope.items = [];
           scope.header = 'Select';
           scope.multiple = isMultiple;
           scope.disabled = false;
+          if (attrs.txtRegex) {
+            txtPattern = scope.$eval(attrs['txtRegex']);
+          }
 
           originalScope.$on('$destroy', function () {
             scope.$destroy();
           });
 
-          var popUpEl = angular.element('<multiselect-popup' + 
-                        (attrs.templateUrl ? (' template-url="' + attrs.templateUrl + '"'): '' ) + 
-                        '></multiselect-popup>');
-						
+          var popUpEl = angular.element('<multiselect-popup' +
+            (attrs.templateUrl ? (' template-url="' + attrs.templateUrl + '"') : '') +
+            '></multiselect-popup>');
+
           //required validator
           if (attrs.required || attrs.ngRequired) {
             required = true;
           }
-          attrs.$observe('required', function(newVal) {
+          attrs.$observe('required', function (newVal) {
             required = newVal;
           });
 
@@ -103,7 +124,7 @@ angular.module('ui.multiselect', [])
           function parseModel() {
             scope.items.length = 0;
             var model = parsedResult.source(originalScope);
-            if(!angular.isDefined(model)) return;
+            if (!angular.isDefined(model)) return;
             for (var i = 0; i < model.length; i++) {
               var local = {};
               local[parsedResult.itemName] = model[i];
@@ -121,38 +142,42 @@ angular.module('ui.multiselect', [])
 
           function getHeaderText() {
             if (is_empty(modelCtrl.$modelValue)) return scope.header = attrs.msHeader || 'Select';
-            
-              if (isMultiple) {
-                  if (attrs.msSelected) {
-                      scope.header = $interpolate(attrs.msSelected)(scope);
-                  } else {
-                     if (modelCtrl.$modelValue.length == 1) {
-                          for(var i = 0; i < scope.items.length; i++) {
-                              if(scope.items[i].model === modelCtrl.$modelValue[0]) {
-                                  scope.header = scope.items[i].label;
-                              }
-                          }
-                      } else {
-                          scope.header = modelCtrl.$modelValue.length + ' ' + 'selected';
-                      }
+
+            if (isMultiple) {
+              if (attrs.msSelected) {
+                scope.header = $interpolate(attrs.msSelected)(scope);
+              } else if (attrs.msSelectedMessage) {
+                // option ms-selected-message. evaluate the function
+                scope.header = scope.$eval(attrs.msSelectedMessage);
+              } else {
+                if (modelCtrl.$modelValue.length == 1) {
+                  for (var i = 0; i < scope.items.length; i++) {
+                    if (scope.items[i].model === modelCtrl.$modelValue[0]) {
+                      scope.header = scope.items[i].label;
+                    }
                   }
-              
+                } else {
+                  scope.header = modelCtrl.$modelValue.length + ' ' + 'selected';
+                }
+              }
+
             } else {
               var local = {};
               local[parsedResult.itemName] = modelCtrl.$modelValue;
               scope.header = parsedResult.viewMapper(local) || scope.items[modelCtrl.$modelValue].label;
             }
           }
-          
+
           function is_empty(obj) {
             if (angular.isNumber(obj)) return false;
             if (obj && obj.length && obj.length > 0) return false;
-            for (var prop in obj) if (obj[prop]) return false;
+            for (var prop in obj)
+              if (obj[prop]) return false;
             return true;
           };
 
           scope.valid = function validModel() {
-            if(!required) return true;
+            if (!required) return true;
             var value = modelCtrl.$modelValue;
             return (angular.isArray(value) && value.length > 0) || (!angular.isArray(value) && value != null);
           };
@@ -236,52 +261,98 @@ angular.module('ui.multiselect', [])
               selectMultiple(item);
             }
           }
+
+          scope.isRegexOk = function (itemText) {
+            // the string match function accepts a regex, and returns either null or an array of matches
+            if (!txtPattern) return true;
+            var hits = itemText.match(txtPattern);
+            if (_.isEmpty(hits)) {
+              return false;
+            } else {
+              return true;
+            }
+          }
+
+          scope.clearFilter = function () {
+            var inputElement = element.find('input');
+            inputElement.val("");
+          }
+
+          scope.itemExists = function (itemText) {
+            return _.includes(scope.items, itemText);
+          }
+
+          scope.processKey = function (keyEvent) {
+            if (keyEvent.keyCode === 13) {
+              scope.addItem();
+            }
+          }
+
+          scope.addItem = function () {
+            var inputElement = element.find('input');
+            var newValue = inputElement.val();
+            // use lodash isEmpty and find functions.
+            if (_.isEmpty(newValue) || !scope.isRegexOk(newValue) || _.find(scope.items, {
+                label: newValue
+              })) {
+              // if the supplied value is empty, of is already in the list, do nothing
+              return;
+            }
+            var obj = {
+              model: newValue,
+              label: newValue,
+              checked: true
+            };
+            scope.items[scope.items.length] = obj;
+            setModelValue(true);
+            inputElement.val("");
+          }
+
         }
       };
     }])
+.directive('multiselectPopup', ['$document', function ($document) {
+  return {
+    restrict: 'E',
+    scope: false,
+    replace: true,
+    templateUrl: function (element, attr) {
+      return attr.templateUrl || 'multiselect.tmpl.html';
+    },
+    link: function (scope, element, attrs) {
 
-  .directive('multiselectPopup', ['$document', function ($document) {
-    return {
-      restrict: 'E',
-      scope: false,
-      replace: true,
-      templateUrl: function (element, attr) {
-                return attr.templateUrl || 'multiselect.tmpl.html';
-        },
-      link: function (scope, element, attrs) {
+      scope.isVisible = false;
 
-        scope.isVisible = false;
-
-        scope.toggleSelect = function () {
-          if (element.hasClass('open')) {
-            element.removeClass('open');
-            $document.unbind('click', clickHandler);
-          } else {
-            element.addClass('open');
-            $document.bind('click', clickHandler);
-            scope.focus();
-          }
-        };
-
-        function clickHandler(event) {
-          if (elementMatchesAnyInArray(event.target, element.find(event.target.tagName)))
-            return;
+      scope.toggleSelect = function () {
+        if (element.hasClass('open')) {
           element.removeClass('open');
           $document.unbind('click', clickHandler);
-          scope.$apply();
+        } else {
+          element.addClass('open');
+          $document.bind('click', clickHandler);
+          scope.focus();
         }
+      };
 
-        scope.focus = function focus(){
-          var searchBox = element.find('input')[0];
-          searchBox.focus(); 
-        }
+      function clickHandler(event) {
+        if (elementMatchesAnyInArray(event.target, element.find(event.target.tagName)))
+          return;
+        element.removeClass('open');
+        $document.unbind('click', clickHandler);
+        scope.$apply();
+      }
 
-        var elementMatchesAnyInArray = function (element, elementArray) {
-          for (var i = 0; i < elementArray.length; i++)
-            if (element == elementArray[i])
-              return true;
-          return false;
-        }
+      scope.focus = function focus() {
+        var searchBox = element.find('input')[0];
+        searchBox.focus();
+      }
+
+      var elementMatchesAnyInArray = function (element, elementArray) {
+        for (var i = 0; i < elementArray.length; i++)
+          if (element == elementArray[i])
+            return true;
+        return false;
       }
     }
+  }
   }]);
