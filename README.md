@@ -21,10 +21,7 @@ Additions to multiselect directive based on some requirements I have for a multi
 - In the text filter, pressing escape is bringing back previously entered text, at least in Firefox
 
 ### Examples
-Example: http://plnkr.co/edit/LPGYIf?p=preview
-
-Custom template example: http://plnkr.co/edit/MKhohf?p=preview
-
+Example: working on plunkr.
 
 License
 =======
