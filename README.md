@@ -1,4 +1,4 @@
-# devfactor-angular-multiselect
+# angular-multiselect-dynamic
 
 AngularJS multiselect directive based on [Amitava Saha's original](https://github.com/amitava82/angular-multiselect)
 
