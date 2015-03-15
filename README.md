@@ -18,7 +18,8 @@ Additions to multiselect directive based on some requirements I have for a multi
 - Depends on lodash for some convenience functions
 
 ### Known issues
-- In the text filter, pressing escape is bringing back previously entered text, at least in Firefox
+- Firefox: In the text filter, pressing escape is bringing back previously entered text. Works fine in Chrome though.
+- Clicking the dropdown pushes down content below it. Not sure how to address this.
 
 ### Examples
 Example: working on plunkr.
