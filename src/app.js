@@ -1,15 +1,43 @@
 angular.module('app', ['ui.multiselect'])
   .controller('appCtrl', ['$scope', function ($scope) {
     $scope.cars = [{
-      id: 1,
-      name: 'Audi'
+        id: 1,
+        name: 'Audi'
     }, {
-      id: 2,
-      name: 'BMW'
+        id: 2,
+        name: 'BMW'
     }, {
-      id: 3,
-      name: 'Honda'
-    }];
+        id: 3,
+        name: 'Mercedes'
+    }, {
+        id: 4,
+        name: 'Citroen'
+    }, {
+        id: 5,
+        name: 'Ambassador'
+    }, {
+        id: 6,
+        name: 'Yugo'
+    }, {
+        id: 7,
+        name: 'Mazda'
+    }, {
+        id: 8,
+        name: 'Ford'
+    }, {
+        id: 8,
+        name: 'GM'
+    }, {
+        id: 9,
+        name: 'Suzuki'
+    }, {
+        id: 10,
+        name: 'Saab'
+    }, {
+        id: 11,
+        name: 'Honda'
+    }
+    ];
     $scope.selectedCar = [];
 
     // added method selectedMessage for ms-selected-function

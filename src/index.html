@@ -1,8 +1,11 @@
-<html ng-app="app">
+<!DOCTYPE html>
+<html lang="en" ng-app="app">
 <head>
     <title>Angular multiselect</title>
     <link href="bootstrap-3.3.2-dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <script src="lodash.min.js"></script>
     <script src="angular.min.js"></script>
@@ -10,22 +13,35 @@
     <script src="multiselect.js"></script>
 </head>
 <body ng-controller="appCtrl">
-    <h1>Example</h1>
-    <multiselect class="input-lg" multiple="true" ms-selected-message ="selectedMessage()" 
-        ng-model="selectedCar" ms-header="Select Some Cars"
-        options="c.name for c in cars"
-        txt-regex="filterRegex"
-        change="selected()"></multiselect>
-        <div class="well well-sm">
-            {{selectedCar}}
-        </div>
-    Single select:
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-3">
+        <multiselect class="input-lg" multiple="true" ms-selected-message ="selectedMessage()"
+            ng-model="selectedCar" ms-header="Select Some Cars"
+            options="c.name for c in cars"
+            txt-regex="filterRegex"
+            change="selected()"></multiselect>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-3">
+        {{selectedCar}}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-3">
         <multiselect class="input-lg"
         ng-model="selectedFruit"
         options="c.name for c in fruits"
         change="selected()" ></multiselect>
-        <div class="well well-sm">
-            {{selectedFruit}}
-        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-3">
+        {{selectedFruit}}
+      </div>
+    </div>
+  </div>
 </body>
 </html>
+

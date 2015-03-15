@@ -2,7 +2,7 @@
   <button type="button" class="btn btn-default dropdown-toggle" ng-click="toggleSelect()" ng-disabled="disabled" ng-class="{'error': !valid()}">
     {{header}} <span class="caret"></span>
   </button>
-  <ul class="dropdown-menu">
+  <ul class="dropdown-menu" style="overflow: scroll; width: 100%; position: relative; max-height: 200px;">
     <li>
       <!-- changed placeholder to Filter/Add -->
       <input class="form-control input-sm" type="text" ng-model="searchText.label"

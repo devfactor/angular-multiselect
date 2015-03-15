@@ -37,7 +37,7 @@ angular.module('ui.multiselect', [])
       }
       out = [];
       for (i = 0; i < input.length; i++) {
-        if (input[i]['label'].contains(filterText)) {
+        if (_.contains(input[i]['label'], filterText)) {
           out.push(input[i]);
         }
       }
